@@ -1,0 +1,59 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vget-cli"
+version = "0.1.0"
+description = "A focused CLI downloader for JableTV, MissAV, SupJav, Hanime1, MP4 and M3U8 URLs"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+authors = [{ name = "vget contributors" }]
+keywords = ["cli", "downloader", "hls", "m3u8", "video"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Multimedia :: Video",
+]
+dependencies = [
+  "beautifulsoup4>=4.12.0",
+  "curl-cffi>=0.7.0",
+  "imageio-ffmpeg>=0.5.1",
+  "m3u8>=3.0.0",
+  "pycryptodome>=3.15.0",
+  "requests>=2.28.0",
+]
+
+[project.optional-dependencies]
+dev = ["ruff>=0.9,<1"]
+
+[project.scripts]
+vget = "vget.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vget"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/tests",
+  "/README.md",
+  "/AGENT.md",
+  "/LICENSE",
+  "/NOTICE",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP", "B", "SIM"]

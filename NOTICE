@@ -1,0 +1,16 @@
+vget-cli
+Copyright 2026 vget contributors
+
+This product includes software derived from UAV Downloader:
+https://github.com/Alos21750/UAV-Downloader
+Copyright 2026 ALOS
+Licensed under the Apache License, Version 2.0.
+
+Reference revision:
+d6fda487ddc5967dfd32dcca8b89966e277a398f
+
+The site parsing rules, HLS segment-download design, direct HTTP Range
+download design, filename sanitization, and FFmpeg remux approach were
+adapted and substantially reorganized for a standalone command-line tool.
+The UAV graphical interfaces, updater, watcher, subtitle pipeline, model
+assets, branding, and application configuration are not included.

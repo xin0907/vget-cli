@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+.release-check/
+*.whl
+
+# Environments and local configuration
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Local design notes
+/docs/
+
+# Downloader output and private browser data
+downloads/
+.integration-*/
+.vget-parts/
+*.part
+*.part.mp4
+cookies.txt
+cookies-*.txt
+*.cookies.txt
+*.log
