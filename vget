@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+VGET_PROJECT_DIR=$(cd -- "$(dirname -- "$0")" && pwd)
+VGET_EXECUTABLE="$VGET_PROJECT_DIR/.venv/Scripts/vget.exe"
+
+if [[ ! -f "$VGET_EXECUTABLE" ]]; then
+    echo "vget 尚未安装，请先运行：python -m venv .venv && ./.venv/Scripts/python.exe -m pip install -e ." >&2
+    exit 1
+fi
+
+cd -- "$VGET_PROJECT_DIR"
+exec "$VGET_EXECUTABLE" "$@"

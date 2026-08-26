@@ -43,12 +43,15 @@ packages = ["src/vget"]
 
 [tool.hatch.build.targets.sdist]
 include = [
+  "/.env.example",
   "/src",
   "/tests",
   "/README.md",
   "/AGENT.md",
   "/LICENSE",
   "/NOTICE",
+  "/vget",
+  "/vget.cmd",
 ]
 
 [tool.ruff]

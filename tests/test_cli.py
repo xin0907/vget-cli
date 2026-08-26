@@ -5,11 +5,88 @@ from pathlib import Path
 from unittest.mock import patch
 
 from vget.arguments import QUALITY_MAP, build_parser, clean_urls, collect_urls, validate_args
+from vget.config import (
+    ENV_OUTPUT_DIR,
+    ENV_PROXY,
+    ENV_QUALITY,
+    ENV_RETRIES,
+    ENV_WORKERS,
+    ConfigError,
+)
+from vget.constants import (
+    DEFAULT_OUTPUT_DIR,
+    DEFAULT_PROXY_URL,
+    DEFAULT_QUALITY,
+    DEFAULT_RETRIES,
+    DEFAULT_WORKERS,
+)
+
+MISSING_ENV_FILE = Path(__file__).with_name(".missing.env")
 
 
 class CliTests(unittest.TestCase):
     def setUp(self):
-        self.parser = build_parser()
+        self.parser = build_parser(env_file=MISSING_ENV_FILE, environ={})
+
+    def test_common_defaults(self):
+        args = self.parser.parse_args(["https://example.com/v"])
+        self.assertEqual(args.proxy, DEFAULT_PROXY_URL)
+        self.assertEqual(args.quality, DEFAULT_QUALITY)
+        self.assertEqual(args.output, Path(DEFAULT_OUTPUT_DIR))
+        self.assertEqual(args.retries, DEFAULT_RETRIES)
+        self.assertEqual(args.workers, DEFAULT_WORKERS)
+
+    def test_environment_defaults_and_cli_override(self):
+        env = {
+            ENV_OUTPUT_DIR: "custom-downloads",
+            ENV_PROXY: "http://127.0.0.1:7890",
+            ENV_QUALITY: "720p",
+            ENV_RETRIES: "2",
+            ENV_WORKERS: "6",
+        }
+        parser = build_parser(env_file=MISSING_ENV_FILE, environ=env)
+        defaults = parser.parse_args(["https://example.com/v"])
+        overridden = parser.parse_args(
+            [
+                "--proxy",
+                "socks5h://127.0.0.1:10809",
+                "-q",
+                "1080p",
+                "-o",
+                "cli-downloads",
+                "-w",
+                "7",
+                "--retries",
+                "3",
+                "https://example.com/v",
+            ]
+        )
+        self.assertEqual(defaults.output, Path("custom-downloads"))
+        self.assertEqual(defaults.proxy, "http://127.0.0.1:7890")
+        self.assertEqual(defaults.quality, "720p")
+        self.assertEqual(defaults.retries, 2)
+        self.assertEqual(defaults.workers, 6)
+        self.assertEqual(overridden.proxy, "socks5h://127.0.0.1:10809")
+        self.assertEqual(overridden.quality, "1080p")
+        self.assertEqual(overridden.output, Path("cli-downloads"))
+        self.assertEqual(overridden.retries, 3)
+        self.assertEqual(overridden.workers, 7)
+
+    def test_empty_proxy_configuration_disables_proxy(self):
+        parser = build_parser(env_file=MISSING_ENV_FILE, environ={ENV_PROXY: ""})
+        args = parser.parse_args(["https://example.com/v"])
+        validate_args(args)
+        self.assertEqual(args.proxy, "")
+
+    def test_rejects_invalid_environment_defaults(self):
+        invalid_values = (
+            (ENV_QUALITY, "4k"),
+            (ENV_RETRIES, "-1"),
+            (ENV_WORKERS, "many"),
+        )
+        for key, value in invalid_values:
+            with self.subTest(key=key), self.assertRaises(ConfigError):
+                build_parser(env_file=MISSING_ENV_FILE, environ={key: value})
 
     def test_clean_urls_ignores_comments_and_duplicates(self):
         values = ["", "# comment", " https://example.com/a ", "https://example.com/a"]

@@ -3,19 +3,35 @@
 from __future__ import annotations
 
 import argparse
-import os
 import re
 import string
 import sys
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from pathlib import Path
 
-from .constants import DEFAULT_NAME_TEMPLATE, DEFAULT_RETRIES, HTTP_URL_PREFIXES, MAX_WORKERS
+from .config import (
+    DEFAULT_ENV_FILE,
+    ENV_OUTPUT_DIR,
+    ENV_PROXY,
+    ENV_QUALITY,
+    ENV_RETRIES,
+    ENV_WORKERS,
+    ConfigError,
+    load_env_defaults,
+)
+from .constants import (
+    DEFAULT_NAME_TEMPLATE,
+    DEFAULT_OUTPUT_DIR,
+    DEFAULT_PROXY_URL,
+    DEFAULT_QUALITY,
+    DEFAULT_RETRIES,
+    DEFAULT_WORKERS,
+    HTTP_URL_PREFIXES,
+    MAX_WORKERS,
+)
 
 ALLOWED_TEMPLATE_FIELDS = {"title", "id", "site", "ext"}
-DEFAULT_CPU_COUNT = 4
-DEFAULT_OUTPUT_DIR = Path("downloads")
-PROXY_URL_PREFIXES = (*HTTP_URL_PREFIXES, "socks4://", "socks5://")
+PROXY_URL_PREFIXES = (*HTTP_URL_PREFIXES, "socks4://", "socks5://", "socks5h://")
 QUALITY_MAP = {
     "best": "highest",
     "highest": "highest",
@@ -25,7 +41,6 @@ QUALITY_MAP = {
     "360p": "360",
     "lowest": "lowest",
 }
-WORKERS_PER_CPU = 2
 MARKDOWN_LINK_RE = re.compile(r"^\[[^\]]*\]\((https?://[^\s)]+)\)$", re.IGNORECASE)
 
 
@@ -55,8 +70,46 @@ def non_negative_int(value: str) -> int:
     return number
 
 
-def build_parser(version: str = "unknown") -> argparse.ArgumentParser:
-    default_workers = min((os.cpu_count() or DEFAULT_CPU_COUNT) * WORKERS_PER_CPU, MAX_WORKERS)
+def configured_int(
+    values: Mapping[str, str],
+    key: str,
+    fallback: int,
+    converter: Callable[[str], int],
+) -> int:
+    raw_value = values.get(key)
+    if raw_value is None:
+        return fallback
+    try:
+        return converter(raw_value)
+    except argparse.ArgumentTypeError as exc:
+        raise ConfigError(f"{key}：{exc}") from exc
+
+
+def build_parser(
+    version: str = "unknown",
+    *,
+    env_file: Path = DEFAULT_ENV_FILE,
+    environ: Mapping[str, str] | None = None,
+) -> argparse.ArgumentParser:
+    env_defaults = load_env_defaults(env_file, environ)
+    default_quality = env_defaults.get(ENV_QUALITY, DEFAULT_QUALITY)
+    if default_quality not in QUALITY_MAP:
+        choices = "、".join(QUALITY_MAP)
+        raise ConfigError(f"{ENV_QUALITY} 必须是以下值之一：{choices}")
+    default_output = Path(env_defaults.get(ENV_OUTPUT_DIR, DEFAULT_OUTPUT_DIR))
+    default_proxy = env_defaults.get(ENV_PROXY, DEFAULT_PROXY_URL)
+    default_workers = configured_int(
+        env_defaults,
+        ENV_WORKERS,
+        DEFAULT_WORKERS,
+        positive_int,
+    )
+    default_retries = configured_int(
+        env_defaults,
+        ENV_RETRIES,
+        DEFAULT_RETRIES,
+        non_negative_int,
+    )
     parser = argparse.ArgumentParser(
         prog="vget",
         description="JableTV、MissAV、SupJav、Hanime1 及 MP4/M3U8 的纯 CLI 下载器。",
@@ -74,16 +127,16 @@ def build_parser(version: str = "unknown") -> argparse.ArgumentParser:
         "-o",
         "--output",
         type=Path,
-        default=DEFAULT_OUTPUT_DIR,
+        default=default_output,
         metavar="DIR",
-        help="保存目录（默认：downloads）",
+        help=f"保存目录（默认：{default_output}）",
     )
     parser.add_argument(
         "-q",
         "--quality",
         choices=tuple(QUALITY_MAP),
-        default="best",
-        help="画质偏好或上限（默认：best）",
+        default=default_quality,
+        help=f"画质偏好或上限（默认：{default_quality}）",
     )
     parser.add_argument(
         "-n",
@@ -103,11 +156,16 @@ def build_parser(version: str = "unknown") -> argparse.ArgumentParser:
     parser.add_argument(
         "--retries",
         type=non_negative_int,
-        default=DEFAULT_RETRIES,
+        default=default_retries,
         metavar="N",
-        help="每个请求的重试次数（默认：4）",
+        help=f"每个请求的重试次数（默认：{default_retries}）",
     )
-    parser.add_argument("--proxy", metavar="URL", help="HTTP、HTTPS 或 SOCKS 代理")
+    parser.add_argument(
+        "--proxy",
+        default=default_proxy,
+        metavar="URL",
+        help=f"HTTP、HTTPS 或 SOCKS 代理（默认：{default_proxy or '不使用'}）",
+    )
     parser.add_argument("--cookies", type=Path, metavar="FILE", help="Netscape 格式 Cookie 文件")
     parser.add_argument("--user-agent", metavar="TEXT", help="自定义 User-Agent")
     parser.add_argument("--referer", metavar="URL", help="覆盖媒体请求的 Referer")
@@ -151,6 +209,8 @@ def collect_urls(args: argparse.Namespace) -> list[str]:
 
 
 def validate_args(args: argparse.Namespace) -> None:
+    if args.quality not in QUALITY_MAP:
+        raise ValueError(f"画质配置无效：{args.quality}")
     if args.workers > MAX_WORKERS:
         raise ValueError(f"--workers 最高为 {MAX_WORKERS}")
     if args.cookies and not args.cookies.expanduser().is_file():
@@ -168,4 +228,8 @@ def validate_args(args: argparse.Namespace) -> None:
 
 
 def parse_args(argv: Sequence[str] | None, version: str) -> argparse.Namespace:
-    return build_parser(version).parse_args(argv)
+    try:
+        return build_parser(version).parse_args(argv)
+    except ConfigError as exc:
+        print(f"配置错误：{exc}", file=sys.stderr)
+        raise SystemExit(2) from exc
