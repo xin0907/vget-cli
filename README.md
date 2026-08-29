@@ -4,6 +4,26 @@
 这件事做简单，索性写了 `vget`：它能解析网页中的 MP4/HLS 视频，并通过并发下载尽量
 跑满可用带宽。
 
+## 支持网站
+
+- [Jable](https://jable.tv/)
+- [MissAV](https://missav.ai/)
+- [SupJav](https://supjav.com/)
+
+### 暂不支持
+
+| 网站 | 状态 |
+| --- | --- |
+| [YouTube](https://www.youtube.com/) | ❌ 暂不支持 |
+| [哔哩哔哩](https://www.bilibili.com/) | ❌ 暂不支持 |
+| [优酷](https://www.youku.com/) | ❌ 暂不支持 |
+| [爱奇艺](https://www.iqiyi.com/) | ❌ 暂不支持 |
+| [腾讯视频](https://v.qq.com/) | ❌ 暂不支持 |
+| [Vimeo](https://vimeo.com/) | ❌ 暂不支持 |
+
+上述暂不支持的平台通常通过 JavaScript、接口签名或 DRM 动态生成播放地址，普通网页解析器无法直接取得媒体 URL。
+网站结构和风控策略可能变化，上述结果不代表目标站点始终可访问。
+
 ## 核心用法
 
 ```bash
@@ -83,26 +103,6 @@ vget --input-file urls.txt
 ```
 
 完整参数以 `vget --help` 为准。
-
-## 支持网站
-
-- [Jable](https://jable.tv/)
-- [MissAV](https://missav.ai/)
-- [SupJav](https://supjav.com/)
-
-### 暂不支持
-
-| 网站 | 状态 |
-| --- | --- |
-| [YouTube](https://www.youtube.com/) | ❌ 暂不支持 |
-| [哔哩哔哩](https://www.bilibili.com/) | ❌ 暂不支持 |
-| [优酷](https://www.youku.com/) | ❌ 暂不支持 |
-| [爱奇艺](https://www.iqiyi.com/) | ❌ 暂不支持 |
-| [腾讯视频](https://v.qq.com/) | ❌ 暂不支持 |
-| [Vimeo](https://vimeo.com/) | ❌ 暂不支持 |
-
-上述暂不支持的平台通常通过 JavaScript、接口签名或 DRM 动态生成播放地址，普通网页解析器无法直接取得媒体 URL。
-网站结构和风控策略可能变化，上述结果不代表目标站点始终可访问。
 
 ## 配置
 
