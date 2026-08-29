@@ -84,18 +84,25 @@ vget --input-file urls.txt
 
 完整参数以 `vget --help` 为准。
 
-## 支持来源
+## 支持网站
 
-| 来源 | 类型 | 说明 |
-| --- | --- | --- |
-| JableTV / `fs1.app` | HLS | 专用页面解析器 |
-| MissAV 常用域名 | HLS | 专用页面解析器 |
-| SupJav | HLS / MP4 | FST、Streamtape 和 TV 备用来源 |
-| Hanime1 | MP4 | 签名直链与画质选择 |
-| 直接链接 | MP4 / M3U8 | 直接输入媒体 URL |
-| 普通网页 | MP4 / M3U8 | 解析 HTML 中直接暴露的地址 |
+- [Jable](https://jable.tv/)
+- [MissAV](https://missav.ai/)
+- [SupJav](https://supjav.com/)
 
-网站结构和风控策略可能变化，支持列表不代表目标站点始终可访问。
+### 暂不支持
+
+| 网站 | 状态 |
+| --- | --- |
+| [YouTube](https://www.youtube.com/) | ❌ 暂不支持 |
+| [哔哩哔哩](https://www.bilibili.com/) | ❌ 暂不支持 |
+| [优酷](https://www.youku.com/) | ❌ 暂不支持 |
+| [爱奇艺](https://www.iqiyi.com/) | ❌ 暂不支持 |
+| [腾讯视频](https://v.qq.com/) | ❌ 暂不支持 |
+| [Vimeo](https://vimeo.com/) | ❌ 暂不支持 |
+
+上述暂不支持的平台通常通过 JavaScript、接口签名或 DRM 动态生成播放地址，普通网页解析器无法直接取得媒体 URL。
+网站结构和风控策略可能变化，上述结果不代表目标站点始终可访问。
 
 ## 配置
 
