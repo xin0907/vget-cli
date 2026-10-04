@@ -162,8 +162,7 @@ Cookie 文件可能包含账号凭据，不应提交到 Git。代理也不能代
 | --- | --- |
 | <img src="assets/alipay-qr.png" alt="支付宝赞赏码" width="220"> | <img src="assets/wechat-qr.png" alt="微信赞赏码" width="220"> |
 
-## 开发、联系与许可
+## 开发与许可
 
 - 代码结构、修改约束和验证命令见[开发代理说明](AGENT.md)。
-- 邮箱：[xinyiu777@gmail.com](mailto:xinyiu777@gmail.com)
 - 源代码使用 [Apache-2.0 许可证](LICENSE)，上游归属见 [NOTICE](NOTICE)。`assets/` 中的赞赏码图片不在该授权范围内，详见 [assets/README.md](assets/README.md)。
