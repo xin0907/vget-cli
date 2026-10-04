@@ -154,6 +154,16 @@ Cookie 文件可能包含账号凭据，不应提交到 Git。代理也不能代
 - 遇到 403、429 或 Cloudflare 时，可尝试更换网络、设置代理或使用自己的登录 Cookie。
 - 网站能播放但无法解析时，运行 `vget --verbose --info URL` 获取诊断信息。
 
-## 开发
+## 赞赏
 
-代码结构、修改约束和验证命令见[开发代理说明](AGENT.md)。
+如果 vget 对你有帮助，欢迎自愿赞赏，这不会影响任何功能。
+
+| 支付宝 | 微信 |
+| --- | --- |
+| <img src="assets/alipay-qr.png" alt="支付宝赞赏码" width="220"> | <img src="assets/wechat-qr.png" alt="微信赞赏码" width="220"> |
+
+## 开发、联系与许可
+
+- 代码结构、修改约束和验证命令见[开发代理说明](AGENT.md)。
+- 邮箱：[xinyiu777@gmail.com](mailto:xinyiu777@gmail.com)
+- 源代码使用 [Apache-2.0 许可证](LICENSE)，上游归属见 [NOTICE](NOTICE)。`assets/` 中的赞赏码图片不在该授权范围内，详见 [assets/README.md](assets/README.md)。
